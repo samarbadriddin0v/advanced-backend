@@ -4,7 +4,8 @@
 	"description": "Backend application",
 	"main": "app.js",
 	"scripts": {
-		"start": "node app.js"
+		"start": "node app.js",
+		"dev": "nodemon app.js"
 	},
 	"keywords": [
 		"NodeJS",
@@ -15,5 +16,8 @@
 	"dependencies": {
 		"express": "^4.19.2",
 		"uuid": "^9.0.1"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.0"
 	}
 }
