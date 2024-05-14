@@ -1,14 +1,20 @@
+const BaseError = require('../errors/base.error')
 const authService = require('../service/auth.service')
+const { validationResult } = require('express-validator')
 
 class AuthController {
 	async register(req, res, next) {
 		try {
+			const errors = validationResult(req)
+			if (!errors.isEmpty()) {
+				return next(BaseError.BadRequest('Error with validation', errors.array()))
+			}
 			const { email, password } = req.body
 			const data = await authService.register(email, password)
 			res.cookie('refreshToken', data.refreshToken, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 })
 			return res.json(data)
 		} catch (error) {
-			console.log(error)
+			next(error)
 		}
 	}
 
@@ -18,7 +24,7 @@ class AuthController {
 			await authService.activation(userId)
 			return res.redirect(process.env.CLIENT_URL)
 		} catch (error) {
-			console.log(error)
+			next(error)
 		}
 	}
 
@@ -29,7 +35,7 @@ class AuthController {
 			res.cookie('refreshToken', data.refreshToken, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 })
 			return res.json(data)
 		} catch (error) {
-			console.log(error)
+			next(error)
 		}
 	}
 
@@ -40,7 +46,7 @@ class AuthController {
 			res.clearCookie('refreshToken')
 			return res.json({ token })
 		} catch (error) {
-			console.log(error)
+			next(error)
 		}
 	}
 
@@ -51,7 +57,16 @@ class AuthController {
 			res.cookie('refreshToken', data.refreshToken, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 })
 			return res.json(data)
 		} catch (error) {
-			console.log(error)
+			next(error)
+		}
+	}
+
+	async getUser(req, res, next) {
+		try {
+			const data = await authService.getUsers()
+			return res.json(data)
+		} catch (error) {
+			next(error)
 		}
 	}
 }
