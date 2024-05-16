@@ -9,7 +9,12 @@ const cors = require('cors')
 
 const app = express()
 
-app.use(cors())
+app.use(
+	cors({
+		credentials: true,
+		origin: process.env.CLIENT_URL,
+	})
+)
 app.use(express.json())
 app.use(cookieParser({}))
 app.use(express.static('static'))

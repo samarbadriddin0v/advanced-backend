@@ -4,7 +4,7 @@ const fileService = require('./file.service')
 class PostService {
 	async create(post, picture, author) {
 		const fileName = fileService.save(picture)
-		const newPost = await postModel.create({ ...post, picture: fileName, author })
+		const newPost = await postModel.create({ ...post, picture: fileName })
 		return newPost
 	}
 
