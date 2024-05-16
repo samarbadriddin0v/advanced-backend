@@ -12,11 +12,13 @@ import { Label } from './ui/label'
 import { ChangeEvent, useState } from 'react'
 import $axios from '@/http'
 import { toast } from 'sonner'
+import { postStore } from '@/store/post.store'
 
 function CreatePost() {
 	const [loading, setLoading] = useState(false)
 	const [picture, setPicture] = useState<File | null>(null)
 
+	const { posts, setPosts } = postStore()
 	const { isOpen, onClose } = useCreatePost()
 
 	const form = useForm<z.infer<typeof postSchema>>({
@@ -39,7 +41,12 @@ function CreatePost() {
 
 		const promise = $axios
 			.post('/post/create', formData)
-			.then(res => console.log(res))
+			.then(res => {
+				const newData = [...posts, res.data]
+				setPosts(newData)
+				form.reset()
+				onClose()
+			})
 			.finally(() => setLoading(false))
 
 		toast.promise(promise, {
