@@ -10,9 +10,9 @@ import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 import { Label } from './ui/label'
 import { ChangeEvent, useState } from 'react'
-import $axios from '@/http'
 import { toast } from 'sonner'
 import { postStore } from '@/store/post.store'
+import $api from '@/http/api'
 
 function CreatePost() {
 	const [loading, setLoading] = useState(false)
@@ -31,7 +31,7 @@ function CreatePost() {
 		setPicture(file as File)
 	}
 
-	function onSubmit(values: z.infer<typeof postSchema>) {
+	async function onSubmit(values: z.infer<typeof postSchema>) {
 		if (!picture) return null
 		setLoading(true)
 		const formData = new FormData()
@@ -39,21 +39,18 @@ function CreatePost() {
 		formData.append('body', values.body)
 		formData.append('picture', picture)
 
-		const promise = $axios
-			.post('/post/create', formData)
-			.then(res => {
-				const newData = [...posts, res.data]
-				setPosts(newData)
-				form.reset()
-				onClose()
-			})
-			.finally(() => setLoading(false))
-
-		toast.promise(promise, {
-			loading: 'Loading...',
-			success: 'Successfully created!!!',
-			error: 'Something went wrong!',
-		})
+		try {
+			const res = await $api.post('/post/create', formData)
+			const newData = [...posts, res.data]
+			setPosts(newData)
+			form.reset()
+			onClose()
+		} catch (error) {
+			// @ts-ignore
+			toast(error.response.data.message)
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	return (
