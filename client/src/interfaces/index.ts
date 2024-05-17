@@ -12,3 +12,5 @@ export interface IUser {
 	isActivated: boolean
 	id: string
 }
+
+export type AuthType = 'register' | 'login'
