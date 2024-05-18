@@ -1,4 +1,4 @@
-import { authSchema } from '@/lib/validation'
+import { emailSchema } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -9,32 +9,27 @@ import { useAuth } from '@/hooks/use-auth'
 import { useMutation } from '@tanstack/react-query'
 import $axios from '@/http'
 import FillLoading from '../shared/fill-loading'
-import { authStore } from '@/store/auth.store'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { useState } from 'react'
 
-function Login() {
+function ForgotPassword() {
+	const [success, setSuccess] = useState(false)
+
 	const { setAuth } = useAuth()
 
-	const { setIsAuth, setUser } = authStore()
-	const navigate = useNavigate()
-
-	const form = useForm<z.infer<typeof authSchema>>({
-		resolver: zodResolver(authSchema),
-		defaultValues: { email: '', password: '' },
+	const form = useForm<z.infer<typeof emailSchema>>({
+		resolver: zodResolver(emailSchema),
+		defaultValues: { email: '' },
 	})
 
 	const { mutate, isPending } = useMutation({
-		mutationKey: ['login'],
-		mutationFn: async (values: z.infer<typeof authSchema>) => {
-			const { data } = await $axios.post(`/auth/login`, values)
+		mutationKey: ['forgot-password'],
+		mutationFn: async (values: z.infer<typeof emailSchema>) => {
+			const { data } = await $axios.post(`/auth/fotgot-password`, values)
 			return data
 		},
-		onSuccess: data => {
-			setUser(data.user)
-			setIsAuth(true)
-			localStorage.setItem('accessToken', data.accessToken)
-			navigate('/')
+		onSuccess: () => {
+			setSuccess(true)
 		},
 		onError: error => {
 			// @ts-ignore
@@ -42,15 +37,24 @@ function Login() {
 		},
 	})
 
-	function onSubmit(values: z.infer<typeof authSchema>) {
+	function onSubmit(values: z.infer<typeof emailSchema>) {
 		mutate(values)
+	}
+
+	if (success) {
+		return (
+			<>
+				<h1 className='text-2xl font-bold'>Success</h1>
+				<p className='text-sm text-muted-foreground'>Please check your email address</p>
+			</>
+		)
 	}
 
 	return (
 		<>
 			{isPending && <FillLoading />}
 
-			<h1 className='text-2xl font-bold'>Login</h1>
+			<h1 className='text-2xl font-bold'>Forgot password</h1>
 			<p className='text-sm text-muted-foreground'>
 				Don't have an account?{' '}
 				<span className='cursor-pointer text-blue-500 hover:underline' onClick={() => setAuth('register')}>
@@ -73,28 +77,6 @@ function Login() {
 							</FormItem>
 						)}
 					/>
-					<FormField
-						control={form.control}
-						name='password'
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Password</FormLabel>
-								<FormControl>
-									<Input placeholder='*****' type='password' {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					<div className='flex justify-end'>
-						<span
-							className='text-sm text-blue-500 hover:underline cursor-pointer'
-							onClick={() => setAuth('forgot-password')}
-						>
-							Forgot password?
-						</span>
-					</div>
 
 					<Button type='submit' size={'sm'}>
 						Submit
@@ -105,4 +87,4 @@ function Login() {
 	)
 }
 
-export default Login
+export default ForgotPassword

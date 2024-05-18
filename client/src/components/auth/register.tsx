@@ -85,6 +85,14 @@ function Register() {
 							</FormItem>
 						)}
 					/>
+					<div className='flex justify-end'>
+						<span
+							className='text-sm text-blue-500 hover:underline cursor-pointer'
+							onClick={() => setAuth('forgot-password')}
+						>
+							Forgot password?
+						</span>
+					</div>
 
 					<Button type='submit' size={'sm'}>
 						Submit

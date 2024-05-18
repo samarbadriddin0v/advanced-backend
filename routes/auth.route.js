@@ -16,5 +16,7 @@ router.post('/login', authController.login)
 router.post('/logout', authController.logout)
 router.get('/refresh', authController.refresh)
 router.get('/get-users', authMiddleware, authController.getUser)
+router.post('/fotgot-password', authController.forgotPassword)
+router.put('/recovery-account', authController.recoveryAccount)
 
 module.exports = router
